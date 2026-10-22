@@ -1,0 +1,71 @@
+{
+  "name": "@shadow-js/convex",
+  "version": "1.0.0",
+  "description": "Use Convex from your app with live queries, mutations, pagination, auth and server rendering",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/dev/index.d.ts",
+      "development": "./dist/dev/index.js",
+      "default": "./dist/prod/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown --config-loader native",
+    "typecheck": "tsc -p tsconfig.json",
+    "typecheck:types": "tsc -p tsconfig.test-types.json",
+    "check:production": "node scripts/check-production.mjs",
+    "lint": "biome check .",
+    "test": "vitest run --project unit --project dom --project server",
+    "test:gc": "vitest run --project gc --passWithNoTests",
+    "test:perf": "vitest run --project perf --passWithNoTests",
+    "check": "npm run lint && npm run typecheck && npm run build && npm test && npm run test:perf && npm run test:gc"
+  },
+  "peerDependencies": {
+    "convex": ">=1.31.0",
+    "@shadow-js/core": "^1.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@shadow-js/compiler": "^1.0.0",
+    "@shadow-js/core": "^1.0.0",
+    "@shadow-js/router": "*",
+    "@shadow-js/testing": "^1.0.0",
+    "@shadow-js/web": "^1.0.0",
+    "@testing-library/dom": "10.4.2",
+    "@types/node": "^24.0.0",
+    "convex": "1.46.0",
+    "fast-check": "^4.10.2",
+    "happy-dom": "^21.0.3",
+    "tsdown": "0.23.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  },
+  "homepage": "https://convex.shadowjs.net",
+  "keywords": [
+    "shadowjs",
+    "convex"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shadowjs-dev/convex.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shadowjs-dev/convex/issues"
+  }
+}
