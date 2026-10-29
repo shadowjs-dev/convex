@@ -125,6 +125,18 @@ describe("usePaginatedQuery: pages and status", () => {
     client.fail(QUERY, failure);
     expect(list.error()).toBe(failure);
   });
+
+  it("[CVX-REV-2] error() clears when the failed page recovers", () => {
+    const client = new FakeConvexClient();
+    const { value: list } = mountWith(client, () =>
+      usePaginatedQuery(api.messages.page, { channel: "a" }, { initialNumItems: 2 }),
+    );
+    client.fail(QUERY, new Error("network"));
+    expect(list.error()).toBeInstanceOf(Error);
+    client.emit(QUERY, pageOf([msg("1")], "c1", false));
+    expect(list.error()).toBeUndefined();
+    expect(list.results()).toEqual([msg("1")]);
+  });
 });
 
 describe("usePaginatedQuery: arguments and lifecycle", () => {

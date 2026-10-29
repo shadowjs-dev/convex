@@ -82,7 +82,12 @@ export class PaginationModel {
   private readonly initialNumItems: number;
   private readonly onChange: () => void;
   private readonly roots: Slot[] = [];
-  private failure: { readonly error: unknown } | undefined;
+  /**
+   * The error each failing page subscription last reported. A real client keeps a query subscribed after an error and
+   * calls back again when it recovers, so an entry leaves with the next result of its page (or when the page is retired).
+   * Bounded by the number of page slots.
+   */
+  private readonly failures = new Map<Slot, unknown>();
   private disposed = false;
 
   constructor(host: PageHost, initialNumItems: number, onChange: () => void) {
@@ -128,12 +133,17 @@ export class PaginationModel {
     }
     let status: PaginationStatus;
     if (loading) {
-      status = results.length === 0 ? "LoadingFirstPage" : "LoadingMore";
+      // Whether the first page has arrived decides it, not whether items exist: an empty first page that says more
+      // is coming is followed by a page that is "more", not by a first page.
+      status = this.roots[0]?.result === undefined ? "LoadingFirstPage" : "LoadingMore";
     } else {
       const last = visible.at(-1);
       status = last?.result?.isDone === true ? "Exhausted" : "CanLoadMore";
     }
-    return { results, status, error: this.failure?.error };
+    // The most recent failure among the pages that still fail (a re-failed page moves to the end).
+    let error: unknown;
+    for (const failed of this.failures.values()) error = failed;
+    return { results, status, error };
   }
 
   /** Number of page subscriptions that are still open. Used to check that nothing leaks. */
@@ -205,6 +215,7 @@ export class PaginationModel {
   private receive(slot: Slot, result: PageResultShape): void {
     if (slot.stopped || this.disposed) return;
     slot.result = result;
+    this.failures.delete(slot);
     const parent = slot.parent;
     if (parent !== null) this.retireWhenHalvesLoaded(parent);
     if (slot.split === null && typeof result.splitCursor === "string" && this.shouldSplit(result)) {
@@ -219,6 +230,7 @@ export class PaginationModel {
     if (split === null || parent.stopped) return;
     if (split.first.result === undefined || split.second.result === undefined) return;
     parent.stopped = true;
+    this.failures.delete(parent);
     parent.stop?.();
   }
 
@@ -246,7 +258,8 @@ export class PaginationModel {
 
   private fail(slot: Slot, error: unknown): void {
     if (slot.stopped || this.disposed) return;
-    this.failure = { error };
+    this.failures.delete(slot);
+    this.failures.set(slot, error);
     this.changed();
   }
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.2
+
+### Fixed
+
+- `usePaginatedQuery` clears `error()` when the failed page delivers a result again, instead of keeping the error for the life of the hook.
+- `usePaginatedQuery` reports `LoadingMore`, not `LoadingFirstPage`, while a further page loads after an empty first page.
+- `ConvexProviderWithAuth` no longer stays loading for good when the auth hook reports loading again while the registered token is unchanged.
+- `useUploadFile`'s `progress` follows the latest upload and stays defined while another upload is still running.
+
 ## 1.0.1
 
 ### Changed

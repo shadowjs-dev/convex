@@ -171,9 +171,11 @@ export function ConvexProviderWithAuth(props: ConvexProviderWithAuthProps): unkn
     if (state.isLoading) return "loading";
     return state.isAuthenticated ? "signed-in" : "signed-out";
   });
+  // "Loading" is not written into `serverAuth`: the server's answer for the registered token is still the last word
+  // when the provider settles again with that same token (no new registration, so no new answer would come), and
+  // forgetting it would leave the state loading for good. The combined state below folds the phase in instead.
   useRenderEffect(phase, (current) => {
-    if (current === "loading") setServerAuth(null);
-    else if (current === "signed-out") setServerAuth(false);
+    if (current === "signed-out") setServerAuth(false);
   });
 
   // The registration changes only when the provider's signed-in fetcher changes.
@@ -217,8 +219,8 @@ export function ConvexProviderWithAuth(props: ConvexProviderWithAuthProps): unkn
   });
 
   const state: ConvexAuthState = {
-    isLoading: () => serverAuth() === null,
-    isAuthenticated: () => provider().isAuthenticated && serverAuth() === true,
+    isLoading: () => phase() === "loading" || serverAuth() === null,
+    isAuthenticated: () => phase() === "signed-in" && serverAuth() === true,
   };
   return ConvexProvider({
     client,

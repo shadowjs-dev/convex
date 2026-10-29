@@ -429,26 +429,38 @@ export function useUploadFile(generateUploadUrl: MutationRef): UploadFileHandle 
     equals: false,
   });
 
+  // Plain closure state of this hook (not module state): which upload reports progress, and how many run.
+  let latest = 0;
+  let running = 0;
+
   const upload = (file: Blob, options: UploadOptions = {}): Promise<UploadedFile> => {
+    latest += 1;
+    running += 1;
+    const mine = latest;
     batch(() => {
       setActive((count) => count + 1);
       setFailure(undefined);
       setFraction(0);
     });
-    return uploadOnce(client, generateUploadUrl, file, options, (value) => setFraction(value)).then(
+    // Progress is the most recent upload's: an older upload still running must not move it, and the last upload to
+    // finish is the one that clears it.
+    const finish = (failed?: { readonly error: unknown }): void => {
+      running -= 1;
+      batch(() => {
+        setActive((count) => count - 1);
+        if (running === 0) setFraction(undefined);
+        if (failed !== undefined) setFailure(failed);
+      });
+    };
+    return uploadOnce(client, generateUploadUrl, file, options, (value) => {
+      if (mine === latest) setFraction(value);
+    }).then(
       (result) => {
-        batch(() => {
-          setActive((count) => count - 1);
-          setFraction(undefined);
-        });
+        finish();
         return result;
       },
       (error: unknown) => {
-        batch(() => {
-          setActive((count) => count - 1);
-          setFraction(undefined);
-          setFailure({ error });
-        });
+        finish({ error });
         throw error;
       },
     );

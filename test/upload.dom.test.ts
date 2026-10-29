@@ -126,4 +126,57 @@ describe("useUploadFile with XMLHttpRequest", () => {
       vi.unstubAllGlobals();
     }
   });
+
+  it("[CVX-REV-3] progress follows the latest upload and stays while another upload is still running", async () => {
+    // Stand-in requests the test drives by hand, so the order of progress and completion is exact.
+    const requests: ControlledXhr[] = [];
+    class ControlledXhr {
+      readonly upload: { onprogress?: (event: ProgressEvent) => void } = {};
+      onload?: () => void;
+      onerror?: () => void;
+      onabort?: () => void;
+      status = 200;
+      responseText = JSON.stringify({ storageId: "id" });
+      responseURL = "https://storage.invalid/upload";
+      withCredentials = true;
+      open(): void {
+        requests.push(this);
+      }
+      setRequestHeader(): void {
+        // Headers are not checked by this stand-in.
+      }
+      send(): void {
+        // The test decides when the request answers.
+      }
+      abort(): void {
+        this.onabort?.();
+      }
+    }
+    const report = (request: ControlledXhr | undefined, loaded: number): void => {
+      request?.upload.onprogress?.({ loaded, total: 100, lengthComputable: true } as ProgressEvent);
+    };
+    vi.stubGlobal("XMLHttpRequest", ControlledXhr);
+    try {
+      const upload = mountUpload("https://storage.invalid/upload");
+      const first = upload(new Blob(["a"]));
+      const second = upload(new Blob(["b"]));
+      await vi.waitFor(() => expect(requests.length).toBe(2));
+      report(requests[0], 80);
+      // The older upload's progress does not overwrite the latest upload's.
+      expect(upload.progress()).toBe(0);
+      report(requests[1], 25);
+      expect(upload.progress()).toBe(0.25);
+      requests[0]?.onload?.();
+      await first;
+      // One upload is still running: progress is still defined.
+      expect(upload.pending()).toBe(true);
+      expect(upload.progress()).toBe(0.25);
+      requests[1]?.onload?.();
+      await second;
+      expect(upload.pending()).toBe(false);
+      expect(upload.progress()).toBeUndefined();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });

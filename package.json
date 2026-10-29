@@ -1,6 +1,6 @@
 {
   "name": "@shadow-js/convex",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Use Convex from your app with live queries, mutations, pagination, auth and server rendering",
   "license": "MIT",
   "type": "module",
@@ -38,15 +38,15 @@
   },
   "peerDependencies": {
     "convex": ">=1.31.0",
-    "@shadow-js/core": "^1.0.1"
+    "@shadow-js/core": "^1.0.2"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@shadow-js/compiler": "^1.0.1",
-    "@shadow-js/core": "^1.0.1",
+    "@shadow-js/compiler": "^1.0.2",
+    "@shadow-js/core": "^1.0.2",
     "@shadow-js/router": "*",
-    "@shadow-js/testing": "^1.0.1",
-    "@shadow-js/web": "^1.0.1",
+    "@shadow-js/testing": "^1.0.2",
+    "@shadow-js/web": "^1.0.2",
     "@testing-library/dom": "10.4.2",
     "@types/node": "^24.0.0",
     "convex": "1.46.0",

@@ -124,6 +124,22 @@ describe("ConvexProviderWithAuth: state machine", () => {
     expect(auth.isAuthenticated()).toBe(true);
   });
 
+  it("[CVX-REV-4] a provider that reports loading again while its token stays registered does not strand the state in loading", () => {
+    const client = new FakeConvexClient();
+    const provider = fakeProvider({ isLoading: false, isAuthenticated: true, token: "t1" });
+    const { value: auth } = mountAuth(client, provider, () => useConvexAuth());
+    setCalls(client)[0]?.onChange?.(true);
+    expect(auth.isAuthenticated()).toBe(true);
+    provider.set({ isLoading: true });
+    expect(auth.isLoading()).toBe(true);
+    expect(auth.isAuthenticated()).toBe(false);
+    provider.set({ isLoading: false });
+    // The token is still the registered one, so the server has nothing new to say: the earlier answer stands.
+    expect(setCalls(client).length).toBe(1);
+    expect(auth.isLoading()).toBe(false);
+    expect(auth.isAuthenticated()).toBe(true);
+  });
+
   it("[AUTH-4] the server rejecting the token leaves the user unauthenticated and not loading", () => {
     const client = new FakeConvexClient();
     const provider = fakeProvider({ isLoading: false, isAuthenticated: true, token: "t1" });

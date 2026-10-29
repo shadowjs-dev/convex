@@ -310,6 +310,30 @@ describe("PaginationModel: lifecycle and errors", () => {
     expect(model.snapshot().results).toEqual(["a"]);
   });
 
+  it("[CVX-REV-1] a page that failed and then delivers a result clears its error", () => {
+    // The real client keeps a query subscribed after an error and calls the callback again when the query recovers.
+    const { model, host } = setup();
+    model.start();
+    host.at(0).handlers.onError(new Error("boom"));
+    expect(model.snapshot().error).toEqual(new Error("boom"));
+    host.deliver(0, page(["a"], "c1", false));
+    expect(model.snapshot().error).toBeUndefined();
+    expect(model.snapshot().results).toEqual(["a"]);
+  });
+
+  it("[CVX-REV-1] an error of one page stays while another page recovers", () => {
+    const { model, host } = setup();
+    model.start();
+    host.deliver(0, page(["a"], "c1", false));
+    model.loadMore(2);
+    host.at(0).handlers.onError(new Error("first"));
+    host.at(1).handlers.onError(new Error("second"));
+    host.deliver(1, page(["b"], "c2", true));
+    expect(model.snapshot().error).toEqual(new Error("first"));
+    host.deliver(0, page(["a"], "c1", false));
+    expect(model.snapshot().error).toBeUndefined();
+  });
+
   it("[PAG-25] a result delivered synchronously inside open is not lost", () => {
     const host = new FakePageHost();
     host.syncFor = (spec) => (spec.cursor === null ? page(["a"], "c1", false) : undefined);
@@ -348,6 +372,19 @@ describe("PaginationModel: lifecycle and errors", () => {
     model.start();
     host.deliver(0, page([], "c1", false));
     expect(model.snapshot().status).toBe("CanLoadMore");
+  });
+});
+
+describe("PaginationModel: status with empty pages", () => {
+  it("[CVX-REV-5] loading a further page after an empty first page is LoadingMore, not LoadingFirstPage", () => {
+    const { model, host } = setup();
+    model.start();
+    host.deliver(0, page([], "c1", false));
+    expect(model.loadMore(2)).toBe(true);
+    expect(model.snapshot().results).toEqual([]);
+    expect(model.snapshot().status).toBe("LoadingMore");
+    host.deliver(1, page(["a"], "c2", true));
+    expect(model.snapshot().status).toBe("Exhausted");
   });
 });
 
