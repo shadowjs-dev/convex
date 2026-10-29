@@ -5,7 +5,7 @@ description: "Work with @shadow-js/convex. Use Convex from your app with live qu
 
 # @shadow-js/convex
 
-Version 1.0.2. Use Convex from your app with live queries, mutations, pagination, auth and server rendering.
+Version 1.0.3. Use Convex from your app with live queries, mutations, pagination, auth and server rendering.
 
 ## Where to read more
 
@@ -24,7 +24,7 @@ npm install @shadow-js/convex convex @shadow-js/core
 | Package | Range | Required |
 | --- | --- | --- |
 | `convex` | `>=1.31.0` | yes |
-| `@shadow-js/core` | `^1.0.2` | yes |
+| `@shadow-js/core` | `^1.0.3` | yes |
 
 ## Import paths
 

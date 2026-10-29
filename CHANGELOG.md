@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3
+
+### Fixed
+
+- A test now locks in that `ConvexProviderWithAuth` registers again when the auth hook's `fetchAccessToken` changes identity (the contract `ConvexProviderWithClerk` relies on to switch accounts and organizations); no runtime change.
+
 ## 1.0.2
 
 ### Fixed

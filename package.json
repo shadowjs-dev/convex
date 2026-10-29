@@ -1,6 +1,6 @@
 {
   "name": "@shadow-js/convex",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Use Convex from your app with live queries, mutations, pagination, auth and server rendering",
   "license": "MIT",
   "type": "module",
@@ -27,7 +27,7 @@
   },
   "scripts": {
     "build": "tsdown --config-loader native",
-    "typecheck": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test-types.json",
     "typecheck:types": "tsc -p tsconfig.test-types.json",
     "check:production": "node scripts/check-production.mjs",
     "lint": "biome check .",
@@ -38,15 +38,15 @@
   },
   "peerDependencies": {
     "convex": ">=1.31.0",
-    "@shadow-js/core": "^1.0.2"
+    "@shadow-js/core": "^1.0.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@shadow-js/compiler": "^1.0.2",
-    "@shadow-js/core": "^1.0.2",
+    "@shadow-js/compiler": "^1.0.3",
+    "@shadow-js/core": "^1.0.3",
     "@shadow-js/router": "*",
-    "@shadow-js/testing": "^1.0.2",
-    "@shadow-js/web": "^1.0.2",
+    "@shadow-js/testing": "^1.0.3",
+    "@shadow-js/web": "^1.0.3",
     "@testing-library/dom": "10.4.2",
     "@types/node": "^24.0.0",
     "convex": "1.46.0",
