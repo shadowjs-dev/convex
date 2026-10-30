@@ -25,8 +25,7 @@ contacting any host.
 npm install @shadow-js/convex convex
 ```
 
-`@shadow-js/core` is a peer dependency, and the components need `@shadow-js/web`. ShadowJS 1.0.0 is
-not on npm yet; until it is published, install the packages from this repository's workspace.
+`@shadow-js/core` is a peer dependency, and the components need `@shadow-js/web`.
 
 ## Example
 
@@ -137,8 +136,8 @@ The package has one entry, `@shadow-js/convex`.
 
 - Function references must be the classic `FunctionReference` shape the generated `api` uses. The
   `_future` shape is not accepted, because convex 1.20 does not have it.
-- `ConvexClient` has no `clearAuth`, so the auth provider clears the token by registering a fetcher
-  that returns `null`.
+- `ConvexClient` has no `clearAuth` of its own, so the auth provider calls the one on the base client
+  behind it (`client.client`). Only a client with neither gets a registered fetcher that returns `null`.
 - `Authenticated`, `Unauthenticated` and `AuthLoading` return a plain accessor, so a child
   component that calls a hook inside them does not see the provider's context. Put such children
   behind a `Show`, as the guide shows.
@@ -155,7 +154,7 @@ The package has one entry, `@shadow-js/convex`.
 
 - Runtime: none.
 - Peers: `convex` `>=1.31.0`: the client and server APIs (`convex/browser`, `convex/server`, `convex/values`) that the hooks wrap.
-- Peers: `@shadow-js/core` `^1.0.0`: reactive state for the hooks.
+- Peers: `@shadow-js/core` `^1.0.3`: reactive state for the hooks.
 
 ## Types
 
