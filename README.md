@@ -154,7 +154,7 @@ The package has one entry, `@shadow-js/convex`.
 
 - Runtime: none.
 - Peers: `convex` `>=1.31.0`: the client and server APIs (`convex/browser`, `convex/server`, `convex/values`) that the hooks wrap.
-- Peers: `@shadow-js/core` `^1.0.5`: reactive state for the hooks.
+- Peers: `@shadow-js/core` `^1.0.6`: reactive state for the hooks.
 
 ## Types
 
