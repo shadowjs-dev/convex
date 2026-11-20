@@ -429,7 +429,7 @@ describe("hydration of server markup", () => {
         host,
       ),
     );
-    expect(messages).toEqual([
+    expect(messages.map((message) => message.split("\n")[0])).toEqual([
       '[shadow HYDRATION_TEXT_MISMATCH] expected text "loading" but the server sent text "success"',
       '[shadow HYDRATION_TEXT_MISMATCH] expected text "none" but the server sent text "2"',
     ]);
